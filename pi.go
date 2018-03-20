@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const printOn = 1e8
+const printOn = 1e7
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
@@ -17,22 +17,34 @@ func main() {
 
 	mutex := &sync.Mutex{}
 
+	res := make(chan float64)
+	chanCnt := make(chan int)
+
 	for i:=0;i<4;i++ {
 		go func() {
+			lcnt := 0
+			lin := 0
 			for {
-				cnt += 1
+				lcnt += 1
 				x, y := (2 * rand.Float64()) - 1, (2 *rand.Float64()) - 1
 
 				if x*x + y*y < 1 {
-					in += 1
+					lin += 1
 				}
 
-				if cnt % printOn == 0 {
+				if lcnt % printOn == 0 {
 					mutex.Lock()
-					fmt.Println(float64(in) * 4. / float64(cnt), cnt)
+					cnt += lcnt
+					in += lin
+					res <- float64(in) * 4. / float64(cnt)
+					chanCnt <- cnt
 					mutex.Unlock()
 				}
 			}
 		}()
+	}
+
+	for {
+		fmt.Println(<- res, <- chanCnt)
 	}
 }
