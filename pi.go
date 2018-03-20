@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -14,16 +15,24 @@ func main() {
 	in := 0
 	cnt := 0
 
-	for {
-		cnt += 1
-		x, y := (2 * rand.Float64()) - 1, (2 *rand.Float64()) - 1
+	mutex := &sync.Mutex{}
 
-		if x*x + y*y < 1 {
-			in += 1
-		}
+	for i:=0;i<4;i++ {
+		go func() {
+			for {
+				cnt += 1
+				x, y := (2 * rand.Float64()) - 1, (2 *rand.Float64()) - 1
 
-		if cnt % printOn == 0 {
-			fmt.Println(float64(in) * 4. / float64(cnt), cnt)
-		}
+				if x*x + y*y < 1 {
+					in += 1
+				}
+
+				if cnt % printOn == 0 {
+					mutex.Lock()
+					fmt.Println(float64(in) * 4. / float64(cnt), cnt)
+					mutex.Unlock()
+				}
+			}
+		}()
 	}
 }
