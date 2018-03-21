@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const printOn = 1e7
+const printOn = 1e8
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
